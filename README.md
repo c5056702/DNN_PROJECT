@@ -1,5 +1,6 @@
+<<<<<<< HEAD
 # DNN_PROJECT
-
+=======
 # Graph-Based Entity Reasoning for Visual Story Continuation
 
 Purpose
@@ -40,3 +41,4 @@ python src/train.py --mode graph_textonly
 
 Notes
 - The graph pipeline expects entity tags in the text like `<gdo charX>NAME</gdo>` to extract entities reliably.
+>>>>>>> be8abac (Initial commit)
