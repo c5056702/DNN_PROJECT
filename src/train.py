@@ -194,10 +194,13 @@ def main():
     parser.add_argument("--tfidf_max_features", type=int, default=8000)
     parser.add_argument("--tfidf_corpus_samples", type=int, default=6000)
     parser.add_argument("--max_nodes", type=int, default=40)
+    parser.add_argument("--num_workers", type=int, default=0)
+    parser.add_argument("--pin_memory", action="store_true", help="Enable DataLoader pin_memory when using CUDA.")
     parser.add_argument("--mode", choices=["baseline", "graph", "graph_textonly"], default="baseline")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    pin_memory = args.pin_memory and device.type == "cuda"
     ds = load_dataset("daniel3303/StoryReasoning", cache_dir=args.cache_dir)
     train_raw = ds["train"]
     test_raw = ds["test"]
@@ -220,8 +223,22 @@ def main():
             vectorizer=vectorizer,
             device=device,
         )
-        train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=0, collate_fn=collate)
-        val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=0, collate_fn=collate)
+        train_loader = DataLoader(
+            train_ds,
+            batch_size=args.batch_size,
+            shuffle=True,
+            num_workers=args.num_workers,
+            pin_memory=pin_memory,
+            collate_fn=collate,
+        )
+        val_loader = DataLoader(
+            val_ds,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.num_workers,
+            pin_memory=pin_memory,
+            collate_fn=collate,
+        )
         model = ResnetTfidfSeqPredictor(img_dim=512, tfidf_dim=tfidf_dim, txt_dim=512, hidden_dim=512, dropout=0.1).to(device)
         train_loop(model, train_loader, val_loader, args.epochs, args.lr, args.weight_decay, device, eval_epoch_baseline)
         return
@@ -234,8 +251,22 @@ def main():
         vectorizer=vectorizer,
         device=device,
     )
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=0, collate_fn=collate)
-    val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=0, collate_fn=collate)
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=args.batch_size,
+        shuffle=True,
+        num_workers=args.num_workers,
+        pin_memory=pin_memory,
+        collate_fn=collate,
+    )
+    val_loader = DataLoader(
+        val_ds,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=args.num_workers,
+        pin_memory=pin_memory,
+        collate_fn=collate,
+    )
 
     if args.mode == "graph_textonly":
         model = GraphFusedTextOnlySeqPredictor(
