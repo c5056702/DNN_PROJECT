@@ -26,7 +26,7 @@ Repository layout
 
 Quickstart
 ```bash
-cd "Mani - Project 1"
+cd "Mani"
 
 # Baseline (ResNet + TF-IDF)
 python src/train.py --mode baseline
@@ -40,4 +40,5 @@ python src/train.py --mode graph_textonly
 
 Notes
 - The graph pipeline expects entity tags in the text like `<gdo charX>NAME</gdo>` to extract entities reliably.
+
 
